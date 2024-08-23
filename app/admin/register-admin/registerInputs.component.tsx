@@ -2,18 +2,21 @@
 import { useState, useCallback, ChangeEvent, FormEvent } from 'react';
 import { motion } from 'framer-motion';
 import api from "../../api/api.js";
-import { schema, FormData } from '../../schema/zod';
-import { ZodError } from 'zod';
 
-const InputsRegisterComponent = () => {
+interface FormData {
+  email: string;
+  password_hash: string;
+  rol: string;
+}
+
+const InputsRegisterAdminComponent = () => {
   const [formData, setFormData] = useState<FormData>({
     email: "",
     password_hash: "",
-    rol: "user",
+    rol: "admin",
   });
 
   const [message, setMessage] = useState<string | null>(null);
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const handleChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -25,12 +28,7 @@ const InputsRegisterComponent = () => {
 
   const handleSubmit = useCallback(async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    // Validate the form data
     try {
-      schema.parse(formData);
-      setErrors({}); // Clear previous errors
-
       const response = await api.post("/register", formData);
 
       if (response.status === 201) {
@@ -38,22 +36,14 @@ const InputsRegisterComponent = () => {
         setFormData({
           email: "",
           password_hash: "",
-          rol: "user",
+          rol: "admin",
         });
       } else {
         setMessage("Error al registrar usuario");
       }
     } catch (err) {
-      if (err instanceof ZodError) {
-        const formattedErrors: { [key: string]: string } = {};
-        err.errors.forEach((error) => {
-          formattedErrors[error.path[0]] = error.message;
-        });
-        setErrors(formattedErrors);
-      } else {
-        setMessage("Error al registrar usuario");
-        console.error(err);
-      }
+      setMessage("Error al registrar usuario");
+      console.error(err);
     }
   }, [formData]);
 
@@ -74,10 +64,9 @@ const InputsRegisterComponent = () => {
           value={formData.email}
           onChange={handleChange}
           placeholder="jose@gmail.com"
-          className={`mt-1 block text-gray-700 w-full px-4 py-2 border ${errors.email ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500`}
+          className="mt-1 block text-gray-700 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
           required
         />
-        {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
       </motion.div>
 
       <motion.div
@@ -94,11 +83,10 @@ const InputsRegisterComponent = () => {
           name="password_hash"
           value={formData.password_hash}
           onChange={handleChange}
-          className={`mt-1 text-gray-700 block w-full px-4 py-2 border ${errors.password_hash ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500`}
+          className="mt-1 text-gray-700 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
           required
           placeholder="*****"
         />
-        {errors.password_hash && <p className="text-red-500 text-sm">{errors.password_hash}</p>}
       </motion.div>
 
       <motion.div
@@ -140,4 +128,4 @@ const InputsRegisterComponent = () => {
   );
 };
 
-export default InputsRegisterComponent;
+export default InputsRegisterAdminComponent;

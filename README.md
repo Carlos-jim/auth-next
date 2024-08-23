@@ -9,6 +9,7 @@
 7. Cambiar los datos EN LOS .ENV (FUERON DEJADOS PARA QUE SE TENGA UNA IDEA DE COMO SON LOS DATOS)
 8. Abre dos terminales y en cada una acceda a cd auth-prueba y en la otra cd backend
 9. En las dos ejecute npm run dev
+10. PARA REGISTRAR UN ADMIN ACCEDA A LA RUTA /admin/register-admin
 
 *****************************
 

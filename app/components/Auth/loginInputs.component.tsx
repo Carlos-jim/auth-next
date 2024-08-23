@@ -1,27 +1,32 @@
 "use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation"; 
+import { useState, ChangeEvent, FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import api from "@/app/api/api"; // Asegúrate de que api sea tu cliente de API o importación de tu API
-import {jwtDecode} from "jwt-decode";
-import { JwtPayload } from "../../types/types"; 
-
+import { jwtDecode } from "jwt-decode";
+import { JwtPayload } from "../../types/types";
+import { loginSchema, LoginFormData } from "../../schema/zod"; // Ajusta la ruta según la ubicación del archivo
+import { z } from 'zod';
 const InputsLoginComponent = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const router = useRouter(); 
+  const [error, setError] = useState<string | null>(null); // Para mensajes de error
+  const router = useRouter();
 
-  const handleEmailChange = (e) => {
+  const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
     setEmail(e.target.value);
   };
 
-  const handlePasswordChange = (e) => {
+  const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
+      // Validar datos del formulario
+      loginSchema.parse({ email, password });
+
       // Realizamos la petición a la API de login
       const response = await api.post("/login", {
         email: email,
@@ -32,18 +37,23 @@ const InputsLoginComponent = () => {
         const { token } = response.data;
         localStorage.setItem("token", token);
 
-        const { rol } = jwtDecode<JwtPayload>(token); 
+        const { rol } = jwtDecode<JwtPayload>(token);
         if (rol === "admin") {
-          router.push("/admin/dashboard", );
+          router.push("/admin/dashboard");
         } else {
           router.push("/user/landing");
         }
       } else {
-        alert("Error en el inicio de sesión");
+        setError("Error en el inicio de sesión");
       }
-    } catch (error) {
-      console.error("Error en el inicio de sesión:", error);
-      alert("Correo o contraseña incorrectos.");
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        // Mostrar el primer error de validación de Zod
+        setError(err.errors[0].message);
+      } else {
+        setError("Correo o contraseña incorrectos.");
+        console.error("Error en el inicio de sesión:", err);
+      }
     }
   };
 
@@ -66,7 +76,7 @@ const InputsLoginComponent = () => {
           value={email}
           onChange={handleEmailChange}
           placeholder="jose@gmail.com"
-          className="mt-1 block w-full text-gray-700 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+          className={`mt-1 block w-full text-gray-700 px-4 py-2 border ${error?.includes("Correo") ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500`}
           required
         />
       </motion.div>
@@ -86,11 +96,21 @@ const InputsLoginComponent = () => {
           id="password"
           value={password}
           onChange={handlePasswordChange}
-          className="mt-1 block w-full text-gray-700 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+          className={`mt-1 block w-full text-gray-700 px-4 py-2 border ${error?.includes("contraseña") ? 'border-red-500' : 'border-gray-300'} rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500`}
           required
           placeholder="*****"
         />
       </motion.div>
+      {error && (
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+          className="text-red-500 text-center"
+        >
+          <p>{error}</p>
+        </motion.div>
+      )}
       <motion.div
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}

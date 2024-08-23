@@ -21,6 +21,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/components/Navbar/navbarAuth.component.jsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/components/Navbar/navbarAuth.component.jsx", "backend/scripts/insert_data.js", "app/schema/zod.jsx"],
   "exclude": ["node_modules"]
 }
