@@ -1,5 +1,6 @@
 "use client";
 import { motion } from "framer-motion";
+import PrivateRoute from "@/backend/src/context/PrivateRouter";
 import NavbarAdminComponent from "@/app/components/Navbar/navbarAdmin.component";
 
 const stats = [
@@ -42,17 +43,19 @@ const StatCard = ({ label, value, icon, bgColor, textColor }) => (
 );
 
 const StatsView = () => (
-  <div>
-    <NavbarAdminComponent />
-    <div className="min-h-screen bg-gray-100 p-8">
-      <h1 className="text-3xl font-bold mb-6 text-gray-800">Estadísticas</h1>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {stats.map((stat, index) => (
-          <StatCard key={index} {...stat} />
-        ))}
+  <PrivateRoute rol="admin">
+    <div>
+      <NavbarAdminComponent />
+      <div className="min-h-screen bg-gray-100 p-8">
+        <h1 className="text-3xl font-bold mb-6 text-gray-800">Estadísticas</h1>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {stats.map((stat, index) => (
+            <StatCard key={index} {...stat} />
+          ))}
+        </div>
       </div>
     </div>
-  </div>
+  </PrivateRoute>
 );
 
 export default StatsView;
