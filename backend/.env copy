@@ -1,0 +1,7 @@
+PORT = port_backend
+PORT_FRONTEND = port_frontend
+DB_HOST = nombre_user_database
+DB_PORT= port_data  
+DB_USER= user_database
+DB_PASSWORD = contraseña_database
+DB_DATABASE= nombre_database
